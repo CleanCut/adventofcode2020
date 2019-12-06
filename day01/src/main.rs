@@ -1,8 +1,24 @@
 fn fuel_required(mass: i32) -> i32 {
-    ((mass as f64/ 3.0).floor() - 2.0) as i32
+    let naive = ((mass as f64 / 3.0).floor() - 2.0) as i32;
+    if naive < 0 {
+        0
+    } else {
+        naive
+    }
 }
 
-
+fn total_fuel_required(mass: i32) -> i32 {
+    let mut total_fuel_required = 0;
+    let mut mass_left = mass;
+    loop {
+        mass_left = fuel_required(mass_left);
+        if mass_left == 0 {
+            break;
+        }
+        total_fuel_required += mass_left;
+    }
+    total_fuel_required
+}
 
 fn main() {
     let puzzle_input = vec![
@@ -16,8 +32,12 @@ fn main() {
         63230, 55724, 126888, 70665, 111235, 123493, 148071, 147590, 113936, 57270, 127204, 144599,
         56041, 62105, 124342,
     ];
-    let total: i32 = puzzle_input.into_iter().map(fuel_required).sum();
-    println!("Fuel required: {}", total);
+    let total: i32 = puzzle_input.clone().into_iter().map(fuel_required).sum();
+    println!("Fuel required (without considering fuel needed to lift fuel): {}", total);
+
+
+    let total: i32 = puzzle_input.clone().into_iter().map(total_fuel_required).sum();
+    println!("Total fuel required: {}", total);
 }
 
 #[cfg(test)]
@@ -26,9 +46,17 @@ mod tests {
 
     #[test]
     fn test_fuel_required() {
+        assert_eq!(fuel_required(2), 0);
         assert_eq!(fuel_required(12), 2);
         assert_eq!(fuel_required(14), 2);
         assert_eq!(fuel_required(1969), 654);
         assert_eq!(fuel_required(100756), 33583);
+    }
+
+    #[test]
+    fn test_total_fuel_required() {
+        assert_eq!(total_fuel_required(14), 2);
+        assert_eq!(total_fuel_required(1969), 966);
+        assert_eq!(total_fuel_required(100756), 50346);
     }
 }
